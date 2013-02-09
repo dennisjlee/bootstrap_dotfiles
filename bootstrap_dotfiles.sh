@@ -26,7 +26,7 @@
 aptitude="aptitude"
 squeezePkgs="build-essential curl exuberant-ctags git tmux vim-nox zsh"
 precisePkgs="autojump build-essential curl exuberant-ctags git tmux vim-nox zsh"
-brews="ack autojump cmatrix cowsay ctags fortune mercurial vim wget"
+brews="ack autojump cmake cmatrix cowsay ctags fortune ifstat libevent libmpdclient mercurial netcat tor wget xz"
 
 
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
