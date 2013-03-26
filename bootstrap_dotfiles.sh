@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# bash -c "$(curl -fsSL https://raw.github.com/davidxia/bootstrap_dotfiles/master/bootstrap_dotfiles.sh)"
+# bash -c "$(curl -fsSL https://raw.github.com/dennisjlee/bootstrap_dotfiles/master/bootstrap_dotfiles.sh)"
 #
 #
 # Aptitude packages:
@@ -11,11 +11,10 @@
 # git - obviously
 # tmux - terminal multiplexer
 # vim-nox - Vim compiled with support for scripting with Perl, Python, Ruby, and Tcl
-# zsh - best shell evar
 #
 #
 # Homebrew packages:
-#
+# 
 #
 #
 # Pip packges:
@@ -26,7 +25,8 @@
 aptitude="aptitude"
 squeezePkgs="build-essential curl exuberant-ctags git tmux vim-nox zsh"
 precisePkgs="autojump build-essential curl exuberant-ctags git tmux vim-nox zsh"
-brews="ack autojump cmake cmatrix cowsay ctags fortune ifstat libevent libmpdclient mercurial netcat tor wget xz"
+brews="ack autojump cmake ctags ifstat libevent netcat wget node mongodb python"
+pipPkgs="ipython virtualenv"
 
 
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -109,14 +109,7 @@ function aptInstall() {
     if ${shouldInstall}; then
         ask "We'll need your password:"
         sudo ${aptitude} install ${aptPkgs}
-
-        if [ "${1}" == "precise" ]; then
-            notify "Downloading the patched Monaco font for zsh's powerline theme"
-            mkdir ~/.fonts && git clone https://github.com/scotu/ubuntu-mono-powerline.git ~/.fonts/
-        fi
     fi
-
-    configureAutojump
 }
 
 
@@ -157,57 +150,29 @@ function installBrews() {
                 brew install ${missingBrews}
             fi
         fi
-
-        configureAutojump
     else
         error "${brewLoc} is not executable"
     fi
 }
 
-
-function configureZsh() {
-    askYesNo "install" "oh-my-zsh"
+function configureDotfiles() {
+    askYesNo "configure" "dotfiles"
     if ${shouldInstall}; then
-        notify "Installing oh-my-zsh!"
-        bash -c "$(curl -fsSL https://github.com/davidxia/oh-my-zsh/raw/master/tools/install.sh)"
-    fi
-}
+        alias dotgit="GIT_DIR=$HOME/dotfiles.git GIT_WORK_TREE=$HOME git"
 
-
-function configureTmux() {
-    askYesNo "configure" "tmux"
-    if ${shouldInstall}; then
         printf "\n"
-        printf "\e[0;32m"'   __                                       '"\e[0m\n"
-        printf "\e[0;32m"'  /  |                                      '"\e[0m\n"
-        printf "\e[0;32m"' _$$ |_    _____  ____   __    __  __    __ '"\e[0m\n"
-        printf "\e[0;32m"'/ $$   |  /     \/    \ /  |  /  |/  \  /  |'"\e[0m\n"
-        printf "\e[0;32m"'$$$$$$/   $$$$$$ $$$$  |$$ |  $$ |$$  \/$$/ '"\e[0m\n"
-        printf "\e[0;32m"'  $$ | __ $$ | $$ | $$ |$$ |  $$ | $$  $$<  '"\e[0m\n"
-        printf "\e[0;32m"'  $$ |/  |$$ | $$ | $$ |$$ \__$$ | /$$$$  \ '"\e[0m\n"
-        printf "\e[0;32m"'  $$  $$/ $$ | $$ | $$ |$$    $$/ /$$/ $$  |'"\e[0m\n"
-        printf "\e[0;32m"'   $$$$/  $$/  $$/  $$/  $$$$$$/  $$/   $$/ '"\e[0m\n\n"
+        printf "[0;32m"'      _       _    __ _ _           '"[0m\n"
+        printf "[0;32m"'   __| | ___ | |_ / _(_) | ___  ___ '"[0m\n"
+        printf "[0;32m"'  / _` |/ _ \| __| |_| | |/ _ \/ __|'"[0m\n"
+        printf "[0;32m"' | (_| | (_) | |_|  _| | |  __/\__ \'"[0m\n"
+        printf "[0;32m"'  \__,_|\___/ \__|_| |_|_|\___||___/'"[0m\n"
 
-        backup ~/.tmux.conf ~/.tmux-conf
-        notify "Cloning David Xia's tmux conf and symlinking ~/.tmux.conf -> ~/.tmux-conf/tmux.conf"
-        git clone https://github.com/davidxia/tmux-conf.git ~/.tmux-conf && \
-            ln -s ~/.tmux-conf/tmux.conf ~/.tmux.conf
+	mkdir -p $HOME/dotfiles.git
+	dotgit clone git@github.com:dennisjlee/dotfiles.git
+	dotgit submodule update --init --recursive
+        unalias dotgit
     fi
 }
-
-
-function configureVim() {
-    askYesNo "configure" "vim"
-    if ${shouldInstall}; then
-        backup ~/.vim ~/.vimrc
-
-        notify "Cloning David Xia's Vim config and symlinking ~/.vimrc -> ~/.vim/vimrc"
-        git clone https://github.com/davidxia/vim-config.git ~/.vim && \
-            cd ~/.vim && git submodule update --init bundle/vundle && cd ~ && \
-            vim -u ~/.vim/bundles.vim +BundleInstall +qall && ln -s ~/.vim/vimrc ~/.vimrc
-    fi
-}
-
 
 function configureGit() {
     askYesNo "configure" "git"
@@ -222,16 +187,6 @@ function configureGit() {
         printf "\e[0;32m"'   __/ |      '"\e[0m\n"
         printf "\e[0;32m"'  |___/       '"\e[0m\n\n"
 
-        backup ~/.git-config ~/.gitconfig ~/.gitignore_global
-
-        notify "Cloning David Xia's git-config"
-        notify "Symlinking ~/.gitconfig -> ~/.git-config/gitconfig"
-        notify "Symlinking ~/.gitignore_global -> ~/.git-config/gitignore_global"
-
-        git clone https://github.com/davidxia/git-config.git ~/.git-config && \
-            ln -s ~/.git-config/gitconfig ~/.gitconfig && \
-            ln -s ~/.git-config/gitignore_global ~/.gitignore_global
-
         ask "Setting up git config\nWhat's your name?"
         read git_name
         git config --global user.name "${git_name}"
@@ -243,44 +198,7 @@ function configureGit() {
     fi
 }
 
-
-function configureAutojump() {
-    askYesNo "configure" "autojump"
-    if ${shouldInstall}; then
-        notify "Configuring autojump"
-        if [ "$(uname -s)" == "Darwin" ]; then
-            echo "[ -f $(brew --prefix)/etc/autojump ] && . $(brew --prefix)/etc/autojump" \
-                > ~/.oh-my-zsh/custom/autojump.zsh
-        fi
-    fi
-}
-
-
-function installPip() {
-    if ! pip_loc="$(which pip)" || [ -z "${pip_loc}" ]; then
-        askYesNo "install" "python distribute and pip"
-        if ${shouldInstall}; then
-            printf "\n"
-            printf "\e[0;32m"'        _       '"\e[0m\n"
-            printf "\e[0;32m"'       (_)      '"\e[0m\n"
-            printf "\e[0;32m"'  _ __  _ _ __  '"\e[0m\n"
-            printf "\e[0;32m"' | |_ \| | |_ \ '"\e[0m\n"
-            printf "\e[0;32m"' | |_) | | |_) |'"\e[0m\n"
-            printf "\e[0;32m"' | .__/|_| .__/ '"\e[0m\n"
-            printf "\e[0;32m"' | |     | |    '"\e[0m\n"
-            printf "\e[0;32m"' |_|     |_|    '"\e[0m\n\n"
-
-            notify "Installing python distribute and pip"
-            curl http://python-distribute.org/distribute_setup.py | sudo python
-            curl https://raw.github.com/pypa/pip/master/contrib/get-pip.py | sudo python
-        fi
-    fi
-}
-
-
 function installPipPkgs() {
-    pipPkgs="ipython virtualenv virtualenvwrapper"
-
     askYesNo "install" "pip packages: ${pipPkgs}"
     if ${shouldInstall}; then
         if pipLoc="$(which pip)" && [ ! -z "${pipLoc}" ]; then
@@ -288,21 +206,8 @@ function installPipPkgs() {
             sudo pip install ${pipPkgs}
         fi
     fi
-
-    configureVirtualenvwrapper
 }
 
-
-function configureVirtualenvwrapper() {
-    askYesNo "configure" "virtualenvwrapper"
-    if ${shouldInstall}; then
-        notify "Configuring virtualenvwrapper"
-        if [ "$(uname -s)" == "Darwin" ]; then
-            echo "[ -f /usr/local/bin/virtualenvwrapper.sh ] && source /usr/local/bin/virtualenvwrapper.sh" \
-                > ~/.oh-my-zsh/custom/virtualenvwrapper.zsh
-        fi
-    fi
-}
 
 
 # Debian-based distributions
@@ -321,11 +226,8 @@ fi;
 [ "$(uname -s)" == "Darwin" ] && installHomebrew && installBrews
 
 
-configureZsh
-configureTmux
-configureVim
+configureDotfiles
 configureGit
-installPip
 installPipPkgs
 # TODO rvm
 # source ~/.rvm/scripts/rvm see http://stackoverflow.com/a/11105199/553994

@@ -1,6 +1,6 @@
 These are bash scripts that install, update, or uninstall my specific configurations of
-zsh, vim, git, etc.
+bash, vim, git, etc.
 
 # Main Boostrap Script
 
-    bash -c "$(curl -fsSL https://raw.github.com/davidxia/bootstrap_dotfiles/master/bootstrap_dotfiles.sh)"
+    bash -c "$(curl -fsSL https://raw.github.com/dennisjlee/bootstrap_dotfiles/master/bootstrap_dotfiles.sh)"
