@@ -141,7 +141,7 @@ function installBrews() {
 
         # Create string of missing Homebrew formulae
         for formula in ${brews}; do
-            test "${installedBrews#*$formula}" == "${installedBrews}" && ${missingBrews}="${missingBrews} ${formula}"
+            test "${installedBrews#*$formula}" == "${installedBrews}" && missingBrews="${missingBrews} ${formula}"
         done
 
         if [ ! "${missingBrews}" == "" ]; then
@@ -158,7 +158,6 @@ function installBrews() {
 function configureDotfiles() {
     askYesNo "configure" "dotfiles"
     if ${shouldInstall}; then
-        alias dotgit="GIT_DIR=$HOME/dotfiles.git GIT_WORK_TREE=$HOME git"
 
         printf "\n"
         printf "[0;32m"'      _       _    __ _ _           '"[0m\n"
@@ -167,10 +166,18 @@ function configureDotfiles() {
         printf "[0;32m"' | (_| | (_) | |_|  _| | |  __/\__ \'"[0m\n"
         printf "[0;32m"'  \__,_|\___/ \__|_| |_|_|\___||___/'"[0m\n"
 
-	mkdir -p $HOME/dotfiles.git
-	dotgit clone git@github.com:dennisjlee/dotfiles.git
-	dotgit submodule update --init --recursive
-        unalias dotgit
+        cd ${HOME}
+        export GIT_DIR=${HOME}/dotfiles.git
+        export GIT_WORK_TREE=${HOME}
+        git init
+        git config branch.master.rebase true
+        git remote add origin git@github.com:dennisjlee/dotfiles.git
+        git fetch
+        git reset --hard origin/master
+        git branch --set-upstream master origin/master
+        git submodule update --init --recursive
+        unset GIT_DIR
+        unset GIT_WORK_TREE
     fi
 }
 
