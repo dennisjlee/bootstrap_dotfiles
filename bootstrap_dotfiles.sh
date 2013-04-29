@@ -171,7 +171,10 @@ function configureDotfiles() {
         export GIT_WORK_TREE=${HOME}
         git init
         git config branch.master.rebase true
-        git remote add origin git@github.com:dennisjlee/dotfiles.git
+        # Note: readonly pull URL and writable push URL so it doesn't die if I
+        # don't have my SSH keys set up right
+        git remote add origin git://github.com/dennisjlee/dotfiles.git
+        git remote set-url origin --push git@github.com:dennisjlee/dotfiles.git
         git fetch
         git reset --hard origin/master
         git branch --set-upstream master origin/master
