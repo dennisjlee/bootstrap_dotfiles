@@ -110,6 +110,7 @@ function aptInstall() {
     askYesNo "install" "aptitude packages: ${aptPkgs}"
     if ${shouldInstall}; then
         ask "We'll need your password:"
+        sudo add-apt-repository ppa:git-core/ppa
         sudo ${aptitude} install ${aptPkgs}
     fi
 }
