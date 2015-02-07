@@ -25,6 +25,7 @@
 aptitude="aptitude"
 squeezePkgs="build-essential curl exuberant-ctags git htop screen tmux vim-nox"
 precisePkgs="autojump build-essential curl exuberant-ctags git htop screen tmux vim-nox"
+trustyPkgs="autojump build-essential curl exuberant-ctags git htop screen tmux vim-nox"
 saucyPkgs="autojump build-essential curl exuberant-ctags git htop screen tmux vim-nox"
 brews="ack autojump cmake ctags ifstat libevent netcat wget htop screen node mongodb python"
 pipPkgs="ipython virtualenv"
@@ -101,6 +102,7 @@ function askYesNo() {
 
 function aptInstall() {
     case "${1}" in
+        trusty) aptPkgs="${trustyPkgs}";;
         precise) aptPkgs="${precisePkgs}";;
         squeeze) aptPkgs="${squeezePkgs}";;
         saucy) aptPkgs="${saucyPkgs}";;
@@ -227,7 +229,7 @@ function installPipPkgs() {
 if [ -e /usr/bin/lsb_release ]; then
     distro=$(/usr/bin/lsb_release --codename --short)
 
-    if [ "${distro}" != "precise" -a "${distro}" != "squeeze" -a "${distro}" != "saucy" ]; then
+    if [ "${distro}" != "trusty" -a "${distro}" != "precise" -a "${distro}" != "squeeze" -a "${distro}" != "saucy" ]; then
         die "unsupported distribution: ${distro}"
     fi
 
