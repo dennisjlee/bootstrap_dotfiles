@@ -29,8 +29,8 @@ trustyPkgs="autojump build-essential curl exuberant-ctags git htop screen tmux v
 xenialPkgs="autojump build-essential curl exuberant-ctags git htop screen tmux vim-nox python-pip"
 bionicPkgs="autojump build-essential curl exuberant-ctags git htop screen tmux vim-nox python3 python3-pip"
 saucyPkgs="autojump build-essential curl exuberant-ctags git htop screen tmux vim-nox"
-brews="ack autojump cmake ctags ifstat libevent netcat wget htop screen node mongodb python"
-pipPkgs="ipython virtualenv"
+brews="ack autojump ctags ifstat ipython libevent wget htop node python"
+pipPkgs=""
 
 
 scriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -134,7 +134,7 @@ function installHomebrew() {
             printf "\e[0;32m"'/_/ /_/\____/_/ /_/ /_/\___/_.___/_/   \___/|__/|__/  '"\e[0m\n\n"
 
             notify "Installing Homebrew"
-            ruby <(curl -fsSkL raw.github.com/mxcl/homebrew/go)
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         fi
     else
         notify "Updating Homebrew and formulae"
@@ -180,13 +180,9 @@ function configureDotfiles() {
         export GIT_WORK_TREE=${HOME}
         git init
         git config branch.master.rebase true
-        # Note: readonly pull URL and writable push URL so it doesn't die if I
-        # don't have my SSH keys set up right
-        git remote add origin git://github.com/dennisjlee/dotfiles.git
-        git remote set-url origin --push git@github.com:dennisjlee/dotfiles.git
+        git remote add origin git@github.com:dennisjlee/dotfiles.git
         git fetch
         git reset --hard origin/master
-        git branch --set-upstream master origin/master
         git submodule update --init --recursive
         unset GIT_DIR
         unset GIT_WORK_TREE
@@ -222,7 +218,7 @@ function installPipPkgs() {
     if ${shouldInstall}; then
         if pipLoc="$(which pip)" && [ ! -z "${pipLoc}" ]; then
             notify "Installing pip packages: ${pipPkgs}"
-            sudo pip install ${pipPkgs}
+            sudo pip3 install ${pipPkgs}
         fi
     fi
 }
